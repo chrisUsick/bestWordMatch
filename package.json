@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "devDependencies": {
+    "gulp": "^3.8.8"
+  },
+  "dependencies": {
+    "babel-plugin-transform-es2015-modules-amd": "^6.1.18",
+    "babel-plugin-transform-es2015-modules-umd": "^6.1.18",
+    "babel-polyfill": "^6.1.19",
+    "bootstrap-sass": "^3.0.0",
+    "laravel-elixir": "^3.0.0",
+    "laravel-elixir-babel": "^0.2.0"
+  }
+}
