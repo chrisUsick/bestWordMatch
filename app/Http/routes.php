@@ -12,3 +12,5 @@
 */
 
 Route::get('/', 'LobbyController@lobby');
+
+Route::controller('/api/lobby', 'Api\LobbyController');

@@ -8,7 +8,9 @@ class Lobby {
     P.coroutine(function *() {
       try{
         const data = yield request({url:'api/lobby/join'});
-        console.log(data);
+        console.log('my ticket', data);
+        const tickets = yield request({url:'api/lobby/tickets'});
+        console.log('number of tickets', tickets);
       } catch (e) {
         console.log('error', e);
       }
