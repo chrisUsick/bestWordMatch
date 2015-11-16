@@ -3,7 +3,14 @@
 @section('content')
   <div>
     <h1>Lobby </h1>
-
+    <div id="app" class="col-md-4 col-md-offset-4">
+      <p rv-show="!connected">
+        Connecting to the lobby...
+      </p>
+      <p rv-show="connected">
+        Connected!
+      </p>
+    </div>
   </div>
 @endsection
 
