@@ -21,7 +21,8 @@ elixir(function(mix) {
     mix.scripts([
             'jquery/dist/jquery.min.js',
             'bootstrap/dist/js/bootstrap.min.js',
-            'bluebird/js/browser/bluebird.min.js'
+            'bluebird/js/browser/bluebird.min.js',
+            'rivets/dist/rivets.bundled.min.js'
             ], 'public/js/all.js', bowerDir);
 
     console.log(mix.babel);
