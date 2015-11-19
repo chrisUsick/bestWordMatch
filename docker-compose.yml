@@ -1,0 +1,11 @@
+web:
+  build: .
+  ports:
+   - "8000:80"
+   - "9000:9000"
+  volumes:
+   - .:/share
+  links:
+   - redis
+redis:
+  image: redis

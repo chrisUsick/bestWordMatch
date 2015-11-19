@@ -25,7 +25,8 @@ class Lobby {
   }
 
   connect() {
-    const ws = new WebSocket('ws://b.localhost:9000');
+    const host = location.host.split(':')[0];
+    const ws = new WebSocket(`ws://${host}:9000`);
 
     ws.onclose = (event) => console.log('closed connection', event);
     ws.onopen = (event) => {
