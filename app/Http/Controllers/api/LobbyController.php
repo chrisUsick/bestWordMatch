@@ -5,23 +5,18 @@ namespace App\Http\Controllers\Api;
 // use App\User;
 use Redis;
 use App\Http\Controllers\Controller;
+use App\Services\LobbyService;
 
 class LobbyController extends Controller
 {
-    /**
-     * GET /api/lobby/join
-     * @return JSON  returns ticket
-     */
-    public function getJoin()
+    public function __construct()
     {
-      $id = Redis::incr('ticketId');
-      Redis::rpush('tickets', $id);
-      return response()->json(['ticket'=>$id]);
+      $this->lobby = LobbyService::get();
     }
 
     public function getTickets() {
-      $tickets = Redis::llen('tickets');
-      return response()->json(['tickets'=>$tickets]);
+      $tickets = $this->lobby->getTickets();
+      return response()->json(['tickets'=>  count($tickets)]);
     }
 }
 ?>

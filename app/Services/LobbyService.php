@@ -32,6 +32,11 @@ class LobbyService
   public function unregister($ticket) {
     Redis::lrem('tickets', 0, $ticket);
   }
+
+  public function getTickets()
+  {
+    return Redis::lrange('tickets', 0,-1);
+  }
 }
 
 ?>

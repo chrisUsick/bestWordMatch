@@ -29,6 +29,9 @@ class BestWordMatchWS implements MessageComponentInterface {
         ];
         $conn->send(json_encode($data));
         $this->notifyChange();
+
+        // check if enough people have joined to start a game
+        $this->startGame();
     }
     public function onMessage(ConnectionInterface $from, $msg) {
       $data = json_decode($msg);
@@ -67,6 +70,13 @@ class BestWordMatchWS implements MessageComponentInterface {
           'method'=>'lobby:updated'
         ];
         $client->send(json_encode($msg));
+      }
+    }
+
+    public function startGame()
+    {
+      if ($this->clients->count() >= 4) {
+        
       }
     }
 }

@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\Inspire::class,
-        \App\Console\Commands\WebSocketServer::class
+        \App\Console\Commands\WebSocketServer::class,
+        \App\Console\Commands\SeedDatabase::class
         // \App\Console\Commands\SetDockerEnv::class
     ];
 
