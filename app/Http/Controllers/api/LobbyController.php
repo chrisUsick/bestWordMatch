@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 // use App\User;
-use Redis;
 use App\Http\Controllers\Controller;
 use App\Services\LobbyService;
 

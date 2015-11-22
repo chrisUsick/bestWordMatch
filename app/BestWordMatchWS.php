@@ -4,8 +4,13 @@ use Ratchet\ConnectionInterface;
 
 use App\Services\LobbyService;
 class BestWordMatchWS implements MessageComponentInterface {
+    // list of clients
     protected $clients;
+
+    // map<Client, tickets>
+    protected $tickets;
     protected $lobby;
+    protected $gameManager;
     public function __construct() {
         $this->clients = new \SplObjectStorage;
         $this->tickets = new \SplObjectStorage;
@@ -28,10 +33,10 @@ class BestWordMatchWS implements MessageComponentInterface {
           'ticket'=>$ticket
         ];
         $conn->send(json_encode($data));
-        $this->notifyChange();
 
         // check if enough people have joined to start a game
         $this->startGame();
+        $this->notifyChange();
     }
     public function onMessage(ConnectionInterface $from, $msg) {
       $data = json_decode($msg);
@@ -76,7 +81,18 @@ class BestWordMatchWS implements MessageComponentInterface {
     public function startGame()
     {
       if ($this->clients->count() >= 4) {
-        
+        $clientsForGame = [];
+        $ticketsForGame = [];
+        for ($i=0; $i < 3; $i++) {
+          $client = $this->clients[$i];
+          $clientsForGame[] = $client;
+          $ticketsForGame[] = $this->tickets[$client];
+
+          // remove client from the lobby
+          $this->tickets[$client] = undefined;
+        }
+
+        $this->gameManager->createGame($ticketsForGame);
       }
     }
 }

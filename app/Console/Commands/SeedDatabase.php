@@ -28,9 +28,17 @@ class SeedDatabase extends Command
     protected $redCards = [
       ['My love Life', 'Complicated']
       , ['Barack Obama', 'US President']
+      , ['The Wizzard of of Oz', 'something about a tin man...']
+      , ['Laptop', 'a tiny personal computer']
+    ];
+
+    protected $greenCards  = [
+      ['Lazy', 'Not enjoying work']
+      , ['Boring', 'Not very fun']
     ];
 
     protected $redCardsJSON = [];
+    protected $greenCardsJSON = [];
 
     /**
      * Create a new command instance.
@@ -40,9 +48,25 @@ class SeedDatabase extends Command
     public function __construct()
     {
         parent::__construct();
-        foreach ($this->redCards as $redCard) {
-          $this->redCardsJSON[] = json_encode(['word'=>$redCard[0], 'description'=>$redCard[1]]);
-        }
+        $this->redCardsJSON = $this->encodeCards($this->redCards);
+        $this->greenCardsJSON = $this->encodeCards($this->greenCards);
+    }
+
+    public function encodeCards($array)
+    {
+      $result = [];
+      foreach ($array  as $card) {
+        $result[] =  json_encode(['word'=>$card[0], 'description'=>$card[1]]);
+      }
+
+      return $result;
+    }
+
+    public function saveCards($key, $cards)
+    {
+      foreach ($cards as $card) {
+        Redis::sadd($key, $card);
+      }
     }
 
     /**
@@ -52,10 +76,10 @@ class SeedDatabase extends Command
      */
     public function handle()
     {
-      foreach ($this->redCardsJSON as $redCard) {
-        Redis::sadd('redCards', $redCard);
-      }
+      $this->saveCards('redCards', $this->redCardsJSON);
+      $this->saveCards('greenCards', $this->greenCardsJSON);
 
       print_r(Redis::smembers('redCards'));
+      print_r(Redis::smembers('greenCards'));
     }
 }
