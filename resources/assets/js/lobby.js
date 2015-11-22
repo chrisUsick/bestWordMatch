@@ -9,7 +9,7 @@ class Lobby {
      };
     console.log('created lobby');
     rivets.bind($('#lobby'), this.model);
-
+    this.connect();
   }
 
   join() {
