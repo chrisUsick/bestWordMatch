@@ -6,7 +6,12 @@ class Main {
     if (page.search('lobby')) {
       new Lobby();
     } else if (page.search('game')) {
-      
+
+    } else {
+      new Lobby();
     }
   }
 }
+
+
+$(() => Main.run());

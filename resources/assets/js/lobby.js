@@ -1,6 +1,6 @@
 import {request} from "./request"
 
-class Lobby {
+export class Lobby {
   constructor() {
     this.model = {
       connected:false,
@@ -9,10 +9,6 @@ class Lobby {
      };
     console.log('created lobby');
     rivets.bind($('#lobby'), this.model);
-    this.connect();
-  }
-
-  join() {
     this.connect();
   }
 
@@ -32,6 +28,12 @@ class Lobby {
     ws.onopen = (event) => {
       console.log('opened', event);
       this.model.connected = true;
+      ws.send(JSON.stringify({
+        'method':'join',
+        'channel':'lobby'
+      }));
+
+      // ws.close();
     }
     ws.onmessage = (e) => {
       console.log('message', e);
@@ -44,9 +46,7 @@ class Lobby {
       }
     }.bind(this);
 
+
+
   }
 }
-
-const a = new Lobby();
-
-a.join();

@@ -28,5 +28,5 @@ elixir(function(mix) {
     console.log(mix.babel);
     // mix.babel(['request.js'], 'public/js/lib.js')
     // mix.babel(['lobby.js'], 'public/js/lobby.js')
-    mix.browserify(['lobby.js'], 'public/js/app.js', null, {debug:true})
+    mix.browserify(['main.js'], 'public/js/app.js', null, {debug:true})
 });

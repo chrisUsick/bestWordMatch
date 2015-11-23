@@ -16,6 +16,7 @@ class BestWordMatchWS implements MessageComponentInterface {
         $this->clientChannels = new \SplObjectStorage;
 
         $this->channels['lobby'] = new LobbyChannel();
+        $this->channels['game'] = new GameChannel();
     }
 
     /**
@@ -31,6 +32,7 @@ class BestWordMatchWS implements MessageComponentInterface {
 
     public function onMessage(ConnectionInterface $from, $msg) {
       $data = json_decode($msg);
+      echo $msg . '\n';
       if ($data->method == 'join') {
         $channel = $this->channels[$data->channel];
 
@@ -49,17 +51,23 @@ class BestWordMatchWS implements MessageComponentInterface {
       }
     }
     public function onClose(ConnectionInterface $conn) {
+        echo "Connection {$conn->resourceId} has disconnected\nticket: {$this->tickets[$conn]}";
+        echo "discconnedted";
         // The connection is closed, remove it, as we can no longer send it messages
         $this->clients->detach($conn);
-        $channel = $this->clientChannels[$conn];
-        if ($channel) {
-          $channel->onClose($conn);
-        }
+        // $channel = $this->clientChannels[$conn];
+        // if ($channel) {
+        //   $channel->onClose($conn);
+        // }
 
         echo "Connection {$conn->resourceId} has disconnected\nticket: {$this->tickets[$conn]}";
     }
     public function onError(ConnectionInterface $conn, \Exception $e) {
+        echo 'stack trace: ';
+        print_r($e->getTrace());
         echo "An error has occurred: {$e->getMessage()}\n";
+        print_r($e->getFile());
+        print_r($e->getgetLine());
         $conn->close();
         // $this->onClose($conn);
     }
