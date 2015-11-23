@@ -17,6 +17,7 @@ class BestWordMatchWS implements MessageComponentInterface {
 
         $this->channels['lobby'] = new LobbyChannel();
         $this->channels['game'] = new GameChannel();
+        $this->startHeartbeat();
     }
 
     /**
@@ -85,6 +86,10 @@ class BestWordMatchWS implements MessageComponentInterface {
         $data = ['method'=>'error', 'error'=>'not connected to client'];
         $conn->send(json_encode($data));
       }
+    }
+
+    public function startHeartbeat() {
+      
     }
 
 }
