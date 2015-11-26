@@ -54,7 +54,7 @@ class GameChannel implements MessageComponentInterface {
       if ($game->allPlayersRegistered()) {
         $gameReadyData = [
           'method'=>'game:gameReady',
-          'greenCard'=> $game->greenCard()
+          'greenCard'=> json_decode($game->greenCard(), true)
         ];
         $this->broadcastToGame($data->gameId, $gameReadyData);
       }

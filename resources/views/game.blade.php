@@ -29,7 +29,7 @@
       <div class="col-sm-2">
         <h2>Green Card</h2>
         <p>
-          {greenCard}
+          {greenCard.word}: {greenCard.description}
         </p>
       </div>
     </div>

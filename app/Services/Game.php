@@ -33,9 +33,11 @@ class Game {
   public function greenCard()
   {
     $currentGreenCard = Redis::get("game:$this->id:greenCard");
-    if ($currentGreenCard) {
+    if (!$currentGreenCard) {
+      echo "game $this->id doesn't have a current card.\n";
       $currentGreenCard = $this->dealGreenCard();
     }
+    echo 'green card: ' . var_dump($currentGreenCard);
     return $currentGreenCard;
   }
 
@@ -46,6 +48,7 @@ class Game {
   public function dealGreenCard()
   {
     $card = Redis::srandmember('greenCards');
+    echo "random green card: " . var_dump($card);
     Redis::set("game:$this->id:greenCard", $card);
     return $card;
   }
