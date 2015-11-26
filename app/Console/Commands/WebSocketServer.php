@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
+use Ratchet;
 
 use App\BestWordMatchWS;
 
@@ -46,19 +47,24 @@ class WebSocketServer extends Command
     public function fire()
     {
       // $port = intval($this->option('port'));
-      $port = 9000;
+      $port = 9090;
       $this->info("Starting chat web socket server on port " . $port);
 
-      $server = IoServer::factory(
-            new HttpServer(
-                new WsServer(
-                    new BestWordMatchWS()
-                )
-            ),
-            $port,
-            '0.0.0.0'
-        );
-        $server->run();
+      // $server = IoServer::factory(
+      //       new HttpServer(
+      //           new WsServer(
+      //               new BestWordMatchWS()
+      //           )
+      //       ),
+      //       $port,
+      //       '0.0.0.0'
+      //   );
+      //   $server->run();
+      $app = new \Ratchet\App('localhost', $port, '0.0.0.0');
+      $app->route('/lobby', new \App\LobbyChannel());
+      $app->route('/echo', new \App\EchoChannel());
+      $app->route('/game', new \App\GameChannel());
+      $app->run();
     }
 
     /**

@@ -65,7 +65,8 @@ class BestWordMatchWS implements MessageComponentInterface {
     }
     public function onError(ConnectionInterface $conn, \Exception $e) {
         echo 'stack trace: ';
-        print_r($e->getTrace());
+        // print_r($e->getTrace());
+        $e->getStackTraceAsString();
         echo "An error has occurred: {$e->getMessage()}\n";
         print_r($e->getFile());
         print_r($e->getgetLine());
@@ -89,7 +90,7 @@ class BestWordMatchWS implements MessageComponentInterface {
     }
 
     public function startHeartbeat() {
-      
+
     }
 
 }

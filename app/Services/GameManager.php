@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Services;
+use Redis;
+use App\Services\Game;
 
 class GameManager {
 
-  private $instance;
+  private static $instance;
   private function __construct() {
 
   }
@@ -21,7 +23,15 @@ class GameManager {
    * @param tickets   int[]   Array of tickets to add to the game
    */
   public function createGame($tickets) {
+    // create game
+    $id = Redis::incr('gameId');
 
+    // players set
+    foreach ($tickets  as $ticket ) {
+      Redis::sadd("game:$id:players", $ticket);
+    }
+
+    return $id;
   }
 
   /**
@@ -30,7 +40,7 @@ class GameManager {
    * @return Game         game object
    */
   public function getGame($gameId)  {
-
+    return new Game($gameId);
   }
 }
 ?>

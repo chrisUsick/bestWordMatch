@@ -3,6 +3,7 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
 use App\Services\LobbyService;
+use App\Services\GameManager;
 class LobbyChannel implements MessageComponentInterface {
   // list of clients
   protected $clients;
@@ -10,10 +11,12 @@ class LobbyChannel implements MessageComponentInterface {
   // map<Client, tickets>
   protected $tickets;
   protected $lobby;
+  protected $gameManager;
   public function __construct() {
     $this->clients = new \SplObjectStorage;
     $this->tickets = new \SplObjectStorage;
     $this->lobby = LobbyService::get();
+    $this->gameManager = GameManager::get();
   }
 
   /**
@@ -33,9 +36,9 @@ class LobbyChannel implements MessageComponentInterface {
     ];
     $conn->send(json_encode($data));
 
-    // check if enough people have joined to start a game
-    // $this->startGame();
     $this->notifyChange();
+    // check if enough people have joined to start a game
+    $this->startGame();
   }
   public function onMessage(ConnectionInterface $from, $msg) {
     $data = json_decode($msg);
@@ -43,16 +46,22 @@ class LobbyChannel implements MessageComponentInterface {
   }
   public function onClose(ConnectionInterface $conn) {
     // The connection is closed, remove it, as we can no longer send it messages
-    $this->clients->detach($conn);
-    $ticket = $this->tickets[$conn];
-    $this->tickets[$conn] = undefined;
-    $this->lobby->unregister($ticket);
-    $this->notifyChange();
-    echo "Connection {$conn->resourceId} has disconnected from lobby channel\nticket: {$this->tickets[$conn]}";
+    try {
+      $this->clients->detach($conn);
+      $ticket = $this->tickets->offsetGet($conn);
+      $this->tickets->offsetSet($conn);
+      $this->lobby->unregister($ticket);
+      $this->notifyChange();
+      echo "Connection {$conn->resourceId}, ticket: {$ticket}, has disconnected from lobby channel\n";
+    } catch (Exception $e) {
+      echo 'error on close in lobby channel';
+    }
+
+
   }
   public function onError(ConnectionInterface $conn, \Exception $e) {
     echo 'stack trace: ';
-    print_r($e->getTrace());
+    echo $e->getTraceAsString();
     echo "An error has occurred: {$e->getMessage()}\n";
     print_r($e->getFile());
     print_r($e->getgetLine());
@@ -68,7 +77,6 @@ class LobbyChannel implements MessageComponentInterface {
   public function register(ConnectionInterface $conn, $ticket) {
     echo "mapping connection {$conn->resourceId} to ticket {$ticket}\n";
     $this->tickets[$conn] = $ticket;
-    echo 'success map connection';
   }
 
   public function notifyChange()
@@ -83,19 +91,37 @@ class LobbyChannel implements MessageComponentInterface {
 
   public function startGame()
   {
-    if ($this->clients->count() >= 4) {
+    // if enough players start game
+    if ($this->clients->count() >= 2) {
       $clientsForGame = [];
       $ticketsForGame = [];
-      for ($i=0; $i < 3; $i++) {
-        $client = $this->clients[$i];
+
+      // loop through clients
+      $this->clients->rewind();
+      while ($this->clients->valid()) {
+        $client = $this->clients->current();
         $clientsForGame[] = $client;
         $ticketsForGame[] = $this->tickets[$client];
-
-        // remove client from the lobby
-        $this->tickets[$client] = undefined;
+        // echo "all the tickets\n";
+        $this->clients->next();
       }
+      // print_r($clientsForGame);
+      // var_dump($ticketsForGame);
+      $gameId = $this->gameManager->createGame($ticketsForGame);
+      $this->notifyGameReady($clientsForGame, $gameId);
+    }  else {
+      echo "lobby: not enough players for a game\n";
+    }
+  }
 
-      $this->gameManager->createGame($ticketsForGame);
+  public function notifyGameReady($clients, $gameId)
+  {
+    $data = [
+      'method' => 'lobby:gameReady',
+      'gameId' => $gameId
+    ];
+    foreach ($clients as $client ) {
+      $client->send(json_encode($data));
     }
   }
 }
