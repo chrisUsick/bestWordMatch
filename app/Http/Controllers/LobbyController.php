@@ -9,7 +9,7 @@ class LobbyController extends Controller
 {
     public function lobby()
     {
-      return view('lobby', ['name' => 'chris']);
+      return view('lobby', ['title' => 'Lobby']);
     }
 }
 ?>

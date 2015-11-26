@@ -47,7 +47,7 @@ class GameController extends Controller
      */
     public function show($id)
     {
-      return view('game', ['name' => 'chris']);
+      return view('game', ['title' => 'Game']);
     }
 
 }

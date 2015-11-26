@@ -7,6 +7,12 @@ class GameChannel implements MessageComponentInterface {
   // list of clients
   protected $clients;
   protected $gameManager;
+
+  /**
+   * map of $clients associated a game
+   * @var array(gameId, SplObjectStorage(ConnectionInterface))
+   */
+  protected $games = array();
   // map<Client, tickets>
   public function __construct() {
     $this->clients = new \SplObjectStorage;
@@ -39,17 +45,41 @@ class GameChannel implements MessageComponentInterface {
     $game = $this->gameManager->getGame($data->gameId);
     $success = $game->registerPlayer($data->playerId);
     if ($success) {
-      $data = [
+      $successData = [
         'method'=> 'game:myHand',
         'cards'=>['boo']
       ];
-      $conn->send(json_encode($data));
+      $conn->send(json_encode($successData));
+      $this->addClientToGame($data->gameId, $conn);
+      if ($game->allPlayersRegistered()) {
+        $gameReadyData = [
+          'method'=>'game:gameReady',
+          'greenCard'=> $game->greenCard()
+        ];
+        $this->broadcastToGame($data->gameId, $gameReadyData);
+      }
     } else {
-      $data = [
-        'method' => 'game:error',
+      $errorMessage = [
+        'method' => 'game:registrationError',
         'error' => 'failed to registered '
       ];
+      $conn->send(json_encode($errorMessage));
     }
+  }
+
+  public function broadcastToGame($gameId, $data)
+  {
+    $clients = $this->games[$gameId];
+    foreach ($clients as $client) {
+      $client->send(json_encode($data));
+    }
+  }
+
+  public function addClientToGame($gameId, $client) {
+    if (!isset($this->games[$gameId])) {
+      $this->games[$gameId] = new \SplObjectStorage;
+    }
+    $this->games[$gameId]->attach($client);
   }
   public function onClose(ConnectionInterface $conn) {
     // The connection is closed, remove it, as we can no longer send it messages

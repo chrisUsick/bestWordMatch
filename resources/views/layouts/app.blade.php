@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Laravel Quickstart - Basic</title>
+    <title>{{$title}} - Best Word Match</title>
 
     <!-- CSS And JavaScript -->
     <meta charset="utf-8">
