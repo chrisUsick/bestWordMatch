@@ -21,8 +21,16 @@
       <div class="col-sm-2">
         <h2>My Cards</h2>
         <ul rv-each-card="myHand">
+          <li rv-on-click="playCard">
+            {card.word}: {card.description}
+          </li>
+        </ul>
+      </div>
+      <div class="col-sm-2">
+        <h2>Players</h2>
+        <ul rv-each-player="players">
           <li>
-            {card}
+            {player.name} <span rv-show="player.judge" class="badge">judge</span>
           </li>
         </ul>
       </div>

@@ -30,6 +30,9 @@ class SeedDatabase extends Command
       , ['Barack Obama', 'US President']
       , ['The Wizzard of of Oz', 'something about a tin man...']
       , ['Laptop', 'a tiny personal computer']
+      , ['a funny hat', 'there\'s a hat for everything']
+      , ['Jonny Depp', 'actor']
+      , ['the grocery store', 'pick up the milk and eggs']
     ];
 
     protected $greenCards  = [

@@ -32,7 +32,7 @@ class GameChannel implements MessageComponentInterface {
   }
   public function onMessage(ConnectionInterface $from, $msg) {
     $data = json_decode($msg);
-    $methodName = explode(':', $data->method)[1];
+    $methodName = "msg_" . explode(':', $data->method)[1];
     $methodVariable = array($this, $methodName);
     if (is_callable($methodVariable)) {
       $this->$methodName($from, $data);
@@ -40,21 +40,19 @@ class GameChannel implements MessageComponentInterface {
 
   }
 
-  public function register($conn, $data )
+  public function msg_register($conn, $data )
   {
     $game = $this->gameManager->getGame($data->gameId);
     $success = $game->registerPlayer($data->playerId);
     if ($success) {
-      $successData = [
-        'method'=> 'game:myHand',
-        'cards'=>['boo']
-      ];
-      $conn->send(json_encode($successData));
+      $this->send_myHand($conn, $game, $data->playerId);
       $this->addClientToGame($data->gameId, $conn);
       if ($game->allPlayersRegistered()) {
         $gameReadyData = [
           'method'=>'game:gameReady',
-          'greenCard'=> json_decode($game->greenCard(), true)
+          'greenCard'=> json_decode($game->greenCard(), true),
+          'judge' => $game->getJudge(),
+          'players' => $game->getPlayers()
         ];
         $this->broadcastToGame($data->gameId, $gameReadyData);
       }
@@ -64,6 +62,59 @@ class GameChannel implements MessageComponentInterface {
         'error' => 'failed to registered '
       ];
       $conn->send(json_encode($errorMessage));
+    }
+  }
+
+  public function send_myHand($client, $game, $playerId)
+  {
+    $successData = [
+        'method'=> 'game:myHand',
+        'cards'=> $game->getRedCards($playerId)
+      ];
+      $client->send(json_encode($successData));
+  }
+
+  public function msg_playCard($conn, $data)
+  {
+    try {
+      $game = $this->gameManager->getGame($data->gameId);
+      if ($data->card) {
+        $game->playCard($data->playerId, $data->card);
+        $this->send_myHand($conn, $game, $data->playerId);
+        // $this->send_cardPlayed($data->gameId);
+      }
+    } catch (Exception $e) {
+      $this->send_unknownError($conn, $e->getMessage());
+    }
+
+  }
+
+  public function send_unknownError($conn, $msg)
+  {
+    $data = [
+      'method'=>'game:unknownError',
+      'message'=> $msg
+    ];
+
+    $conn->send(json_encode($data));
+  }
+
+  /**
+   * send the players list to all players
+   * send the played cards to the judge
+   * @return void
+   */
+  public function send_cardPlayed($gameId)
+  {
+    $clients = $this->games[$gameId];
+    $game = $this->gameManager->getGame($gameId);
+    $data = [
+      'method'=>'cardPlayed',
+      'players'=>$game->getPlayers(),
+      'judge' => $this->get
+    ];
+    foreach ($clients as $client) {
+
     }
   }
 
@@ -91,8 +142,9 @@ class GameChannel implements MessageComponentInterface {
     echo $e->getTraceAsString();
     echo "An error has occurred: {$e->getMessage()}\n";
     print_r($e->getFile());
-    print_r($e->getgetLine());
-    $conn->close();
+    print_r($e->getLine());
+    // $conn->close();
+    $this->send_unknownError($conn, "unknown error occured");
   }
 
   public function notifyChange()

@@ -3,7 +3,8 @@ import {request} from "./request"
 export class Game {
   constructor () {
     this.model = {
-      showWaitingMsg: () => !this.model.gameStarted || this.model.registrationError
+      showWaitingMsg: () => !this.model.gameStarted || this.model.registrationError,
+      playCard: this.playCard.bind(this)
     };
     this.gameId = location.pathname.match(/\d+/)[0];
     this.playerId = localStorage.getItem('ticket');
@@ -12,6 +13,18 @@ export class Game {
     rivets.bind($("#app"), this.model);
 
     this.initWebSocket();
+  }
+
+  playCard (ev, context) {
+    console.log();
+    const card = context.card;
+    const data = {
+      method: 'game:playCard',
+      gameId:this.gameId,
+      playerId: this.playerId,
+      card: JSON.stringify(card)
+    }
+    this.ws.send(JSON.stringify(data));
   }
 
   initWebSocket() {
@@ -51,9 +64,17 @@ export class Game {
       , 'game:registrationError': (data) => this.model.registrationError = data.error
       , 'game:gameReady': (data) => {
         this.model.greenCard = data.greenCard;
+        this.model.judge = data.judge;
+        this.model.players = this.setPlayers(data.players, data.judge);
         this.model.gameStarted = true;
       }
+
+      , 'game:unknownError': (data) => console.log("unknown error: ", data.message)
     }
+  }
+
+  setPlayers(players, judge) {
+    return players.map((p) => {return {name:p, judge:(p == judge)}});
   }
 
 }

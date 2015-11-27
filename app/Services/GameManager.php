@@ -31,6 +31,9 @@ class GameManager {
       Redis::sadd("game:$id:players", $ticket);
     }
 
+    // copy cards list
+    Redis::sunionstore("game:$id:redCards", "redCards");
+
     return $id;
   }
 
