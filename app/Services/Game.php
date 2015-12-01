@@ -41,7 +41,7 @@ class Game {
   {
     $currentGreenCard = Redis::get("game:$this->id:greenCard");
     if (!$currentGreenCard) {
-      echo "game $this->id doesn't have a current card.\n";
+      // echo "game $this->id doesn't have a current card.\n";
       $currentGreenCard = $this->dealGreenCard();
     }
     // echo 'green card: ' . var_dump($currentGreenCard);
@@ -95,7 +95,7 @@ class Game {
   {
     // get cards
     $cards = Redis::srandmember($this->key . "redCards", $count);
-    echo "found this many cards: " . count($cards);
+    // echo "found this many cards: " . count($cards);
     // echo "cards, $count" . var_dump($cards);
     // remove cards from game deck, add to player's hand
     foreach ($cards as $card) {
@@ -126,13 +126,75 @@ class Game {
   }
 
   /**
+   * return the players that have played in the game
+   * @return playerId[] players that have played
+   */
+  public function getPlayersPlayed()
+  {
+    return Redis::hvals($this->key . "playerCards");
+  }
+  /**
+   * return the played cards
+   * @return cards[] cards that have been played
+   */
+  public function getCardsPlayed()
+  {
+    return $this->decodeRedCards(Redis::hkeys($this->key . "playerCards"));
+  }
+
+  /**
+   * true if all players have played cards
+   * @return bool
+   */
+  public function allPlayersPlayed()
+  {
+    $players = $this->getPlayers();
+    $playersPlayed = $this->getPlayersPlayed();
+    $playersNotPlayed = array_diff($players, $playersPlayed);
+    $judge = $this->getJudge();
+    $allPlayed = (in_array($judge, $playersNotPlayed) && count($playersNotPlayed) == 1);
+    echo "have all players played? $allPlayed";
+    return $allPlayed;
+  }
+
+  /**
    * add the card to the game's played cards deck and give the palyer a new card
    * @return void
    */
   public function playCard($playerId, $card)
   {
-    Redis::hset($this->key . "playedCards", $playerId, $card);
+    Redis::hset($this->key . "playerCards", $card, $playerId);
     Redis::srem("player:$playerId:redCards", $card);
     $this->dealRedCards($playerId, 1);
+  }
+
+  public function pickWinningCard($card)
+  {
+    // incr winning players score
+    $winningPlayer = Redis::hget($this->key . "playerCards", $card);
+    Redis::hincrby($this->key . "scores", $winningPlayer, 1);
+    // reset necessary game state
+    // set judge
+    Redis::set($this->key . "judge", $winningPlayer);
+    // clear playerCards
+    Redis::del($this->key . "playerCards");
+
+    // get new green card
+    $this->dealGreenCard();
+  }
+
+  public function getPlayerScores()
+  {
+    $scoresArr = Redis::hgetall($this->key . "scores");
+    // $returnVal = [];
+    // for ($i=0; $i < count($scoresArr) - 2; $i+=2) {
+    //   $key = $scoresArr[$i];
+    //   $score = $scoresArr[$i + 1];
+    //   $returnVal[$key] = $score;
+    // }
+    // echo "player scores: \n";
+    // var_dump($returnVal);
+    // var_dump($scoresArr);
+    return $scoresArr;
   }
 }

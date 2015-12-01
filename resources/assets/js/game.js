@@ -4,7 +4,9 @@ export class Game {
   constructor () {
     this.model = {
       showWaitingMsg: () => !this.model.gameStarted || this.model.registrationError,
-      playCard: this.playCard.bind(this)
+      playCard: this.playCard.bind(this),
+      pickWinningCard: this.pickWinningCard.bind(this),
+      hasPlayed: false
     };
     this.gameId = location.pathname.match(/\d+/)[0];
     this.playerId = localStorage.getItem('ticket');
@@ -24,7 +26,22 @@ export class Game {
       playerId: this.playerId,
       card: JSON.stringify(card)
     }
-    this.ws.send(JSON.stringify(data));
+    if (this.model.judge != this.playerId && !this.model.hasPlayed) {
+      this.ws.send(JSON.stringify(data));
+      this.model.hasPlayed = true;
+    }
+  }
+
+  pickWinningCard(ev, context) {
+    const card = context.card;
+    const data = {
+      method:'game:pickWinningCard',
+      gameId:this.gameId,
+      winningCard: JSON.stringify(card)
+    }
+    if (this.model.judge == this.playerId) {
+      this.ws.send(JSON.stringify(data));
+    }
   }
 
   initWebSocket() {
@@ -44,7 +61,7 @@ export class Game {
     }.bind(this);
 
     ws.onmessage = (e) => {
-      console.log('message', e);
+      console.log('message', e.data);
       const data = JSON.parse(e.data);
       const handler = this.messageHandler;
       // if the handler has the method defined, call it
@@ -65,16 +82,33 @@ export class Game {
       , 'game:gameReady': (data) => {
         this.model.greenCard = data.greenCard;
         this.model.judge = data.judge;
-        this.model.players = this.setPlayers(data.players, data.judge);
+        // this.model.players = this.setPlayers(data.players, data.judge);
         this.model.gameStarted = true;
-      }
+        this.model.isJudge = data.judge == this.playerId;
+        this.setPlayers(data);
 
+        // clear played cards
+        this.model.playedCards = [];
+      }
+      , 'game:playedCards': (data) => {
+        this.model.playedCards = data.playedCards;
+      }
+      , 'game:cardPlayed': (data) => {
+        this.setPlayers(data);
+      }
       , 'game:unknownError': (data) => console.log("unknown error: ", data.message)
     }
   }
 
-  setPlayers(players, judge) {
-    return players.map((p) => {return {name:p, judge:(p == judge)}});
+  setPlayers(data) {
+    this.model.players = data.players.map((p) => {
+      return {
+        name:p,
+        judge:(p == data.judge),
+        played:(data.playersPlayed && data.playersPlayed.indexOf(p) != -1),
+        score:data.playerScores[p] || 0
+      }
+    });
   }
 
 }

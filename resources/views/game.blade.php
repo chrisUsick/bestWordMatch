@@ -15,7 +15,7 @@
       {registrationError}
     </p>
     <p rv-show="registered">
-      Registered! Player ID: {playerId}
+      Registered! Player ID: {playerId} <span rv-show="hasPlayed" class="badge">Played</span>
     </p>
     <div class="row">
       <div class="col-sm-2">
@@ -30,7 +30,10 @@
         <h2>Players</h2>
         <ul rv-each-player="players">
           <li>
-            {player.name} <span rv-show="player.judge" class="badge">judge</span>
+            {player.name}
+            <span rv-show="player.judge" class="badge">judge</span>
+            <span rv-show="player.played" class="badge">played</span>
+            <span class="badge">score: {player.score}</span>
           </li>
         </ul>
       </div>
@@ -39,6 +42,14 @@
         <p>
           {greenCard.word}: {greenCard.description}
         </p>
+      </div>
+      <div class="col-sm-2" rv-show="isJudge">
+        <h2>Played Cards</h2>
+        <ul rv-each-card="playedCards">
+          <li rv-on-click="pickWinningCard">
+            {card.word}: {card.description}
+          </li>
+        </ul>
       </div>
     </div>
   </div>
