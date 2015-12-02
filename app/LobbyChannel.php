@@ -92,7 +92,7 @@ class LobbyChannel implements MessageComponentInterface {
   public function startGame()
   {
     // if enough players start game
-    if ($this->clients->count() >= 2) {
+    if ($this->clients->count() >= 3) {
       $clientsForGame = [];
       $ticketsForGame = [];
 

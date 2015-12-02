@@ -33,6 +33,7 @@ class GameManager {
 
     // copy cards list
     Redis::sunionstore("game:$id:redCards", "redCards");
+    Redis::sunionstore("game:$id:greenCards", "greenCards");
 
     return $id;
   }

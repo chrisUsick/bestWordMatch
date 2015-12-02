@@ -52,15 +52,8 @@ class GameChannel implements MessageComponentInterface {
       $this->send_myHand($conn, $game, $data->playerId);
       $this->addClientToGame($data->gameId, $conn);
       if ($game->allPlayersRegistered()) {
-        $gameReadyData = [
-          'method'=>'game:gameReady',
-          'greenCard'=> json_decode($game->greenCard(), true),
-          'judge' => $game->getJudge(),
-          'players' => $game->getPlayers(),
-          'playersPlayed' => $game->getPlayersPlayed(),
-          'playerScores' => $game->getPlayerScores()
-        ];
-        $this->broadcastToGame($data->gameId, $gameReadyData);
+        $this->send_roundReady($data->gameId);
+
         if ($data->playerId == $game->getJudge()) {
           $this->send_playedCards($data->gameId);
         }
@@ -78,7 +71,7 @@ class GameChannel implements MessageComponentInterface {
   {
     $game = $this->gameManager->getGame($gameId);
     $roundReadyData = [
-          'method'=>'game:gameReady',
+          'method'=>'game:roundReady',
           'greenCard'=> json_decode($game->greenCard(), true),
           'judge' => $game->getJudge(),
           'players' => $game->getPlayers(),

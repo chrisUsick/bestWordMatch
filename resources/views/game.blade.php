@@ -15,7 +15,9 @@
       {registrationError}
     </p>
     <p rv-show="registered">
-      Registered! Player ID: {playerId} <span rv-show="hasPlayed" class="badge">Played</span>
+      Registered! Player ID: {playerId}
+      <span rv-show="hasPlayed" class="badge">Played</span>
+      <span rv-show="isJudge" class="badge">Judge</span>
     </p>
     <div class="row">
       <div class="col-sm-2">

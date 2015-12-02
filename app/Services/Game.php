@@ -54,9 +54,13 @@ class Game {
    */
   public function dealGreenCard()
   {
-    $card = Redis::srandmember('greenCards');
+    if (!$this->hasCards("greenCards", 1)) {
+      $this->reloadCards("greenCards");
+    }
+    $card = Redis::srandmember($this->key . 'greenCards');
     // echo "random green card: " . var_dump($card);
     Redis::set("game:$this->id:greenCard", $card);
+    Redis::srem($this->key . "greenCards", $card);
     return $card;
   }
 
@@ -94,6 +98,9 @@ class Game {
   public function dealRedCards($playerId, $count = RED_CARDS)
   {
     // get cards
+    if (!$this->hasCards("redCards", $count)) {
+      $this->reloadCards("redCards");
+    }
     $cards = Redis::srandmember($this->key . "redCards", $count);
     // echo "found this many cards: " . count($cards);
     // echo "cards, $count" . var_dump($cards);
@@ -105,6 +112,22 @@ class Game {
     }
 
     return $this->decodeRedCards($cards);
+  }
+
+  /**
+   * check if the game has a certain type of cards
+   * @param  string  $key   the key to check; Either `"redCards"` or `"greenCards"`
+   * @param  int     $count check if there is $count number of cards
+   * @return boolean        true if the cardinality of the set is greater than or equal to $count
+   */
+  private function hasCards($key, $count)
+  {
+    return $count <= Redis::scard($this->key . $key);
+  }
+
+  private function reloadCards($key)
+  {
+    Redis::sunionstore($this->key . $key, $key);
   }
 
   /**

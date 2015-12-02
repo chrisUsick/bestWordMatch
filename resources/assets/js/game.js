@@ -79,7 +79,7 @@ export class Game {
         this.model.registered = true;
       }
       , 'game:registrationError': (data) => this.model.registrationError = data.error
-      , 'game:gameReady': (data) => {
+      , 'game:roundReady': (data) => {
         this.model.greenCard = data.greenCard;
         this.model.judge = data.judge;
         // this.model.players = this.setPlayers(data.players, data.judge);
@@ -87,8 +87,9 @@ export class Game {
         this.model.isJudge = data.judge == this.playerId;
         this.setPlayers(data);
 
-        // clear played cards
-        this.model.playedCards = [];
+        // reset state
+        // this.model.playedCards = [];
+        this.model.hasPlayed = data.playersPlayed.indexOf(this.playerId) != -1;
       }
       , 'game:playedCards': (data) => {
         this.model.playedCards = data.playedCards;
@@ -100,6 +101,9 @@ export class Game {
     }
   }
 
+  /**
+   * extract the players data into objects and set the player has played property
+   */
   setPlayers(data) {
     this.model.players = data.players.map((p) => {
       return {
