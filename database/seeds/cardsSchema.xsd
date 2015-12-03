@@ -1,0 +1,14 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="cards" type="cardsType" />
+  <xs:complexType name="cardsType">
+    <xs:sequence>
+      <xs:element name="card" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="card">
+    <xs:sequence>
+      <xs:element name="word" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

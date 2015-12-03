@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Redis;
 
-class SeedDatabase extends Command
+class SeedDatabase2 extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'redis:seed';
+    protected $signature = 'db:seed2';
 
     /**
      * The console command description.
