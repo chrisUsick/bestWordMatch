@@ -5,9 +5,6 @@ $transform = DOMDocument::load('transform.xsl');
 $proc = new XSLTProcessor;
 $proc->importStyleSheet($transform);
 
-// echo $proc->transformToXML($redCardsRaw);
-
-
 foreach (['greenCards.xml' => $greenCardsRaw, 'redCards.xml' => $redCardsRaw] as $fileName => $raw) {
   $DOM =  $proc->transformToDoc($raw);
   if ($DOM->schemaValidate('cardsSchema.xsd')) {

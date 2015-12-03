@@ -13,14 +13,22 @@ class CardsTableSeeder extends Seeder
       DB::table('cards')->delete();
       // $redId = CardType::where('type', 'red')->first();
       $redId = DB::table('card_types')->select('id')->where('type', '=', 'red')->get()[0]->id;
-      DB::table('cards')->insert([
-        'word'=>'foo',
-        'description'=>'blah blah',
-        'card_type_id'=>$redId
-      ]);
+      $greenId = DB::table('card_types')->select('id')->where('type', '=', 'green')->get()[0]->id;
 
-      $xml = DOMDocument->load('greenWords.xml');
-      
+      foreach (['redCards.xml'=>$redId, 'greenCards.xml'=>$greenId] as $fileName => $id) {
+        $DOM = new DOMDocument;
+        $DOM->load(__DIR__ . '/' . $fileName);
+        $DOM->normalize();
+        foreach ($DOM->getElementsByTagName('card') as $card) {
+          $word = $card->firstChild->nodeValue;
+          $description = $card->childNodes->item(1)->nodeValue;
+          DB::table('cards')->insert([
+            'word'=>$word,
+            'description'=>$description,
+            'card_type_id'=>$id
+          ]);
+        }
+      }
 
     }
 }

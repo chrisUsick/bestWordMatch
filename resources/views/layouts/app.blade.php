@@ -55,8 +55,9 @@
       </nav>
 
     <!-- Page Content -->
-
-      @yield('content')
+      <div class="container">
+        @yield('content')
+      </div>
       <hr>
 
       <!-- Footer -->

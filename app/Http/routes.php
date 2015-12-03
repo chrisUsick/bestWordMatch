@@ -16,3 +16,5 @@ Route::get('/', 'LobbyController@lobby');
 Route::resource('game', 'GameController', ['only'=> ['show']]);
 
 Route::controller('/api/lobby', 'Api\LobbyController');
+
+Route::resource('cards', 'CardsController');

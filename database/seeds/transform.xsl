@@ -9,6 +9,9 @@
           <x:value-of select="b"/>
         </word>
         <description>
+          <x:if test="i">
+            <x:value-of select="i/text()"/>
+          </x:if>
           <x:value-of select="substring(./text(), 4)"/>
         </description>
       </card>
