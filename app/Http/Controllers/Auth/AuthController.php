@@ -20,7 +20,9 @@ class AuthController extends Controller
     | a simple trait to add these behaviors. Why don't you explore it?
     |
     */
-
+    protected $loginPath = '/';
+    protected $redirectTo = '/';
+    protected $redirectPath = '/';
     use AuthenticatesAndRegistersUsers, ThrottlesLogins;
 
     /**
@@ -44,7 +46,7 @@ class AuthController extends Controller
         return Validator::make($data, [
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:6',
+            'password' => 'required|confirmed|min:1',
         ]);
     }
 

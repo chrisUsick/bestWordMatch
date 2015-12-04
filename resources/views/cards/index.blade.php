@@ -1,21 +1,5 @@
 @extends('layouts.app')
 @section('content')
-  {{-- <form action="/cards" method="get" class="form-inline">
-    <div class="form-group">
-      <input class="form-control" type="text" name="search" value="{{{isset($search) ? $search : ''}}}"/>
-    </div>
-    <div class="checkbox">
-      <label>
-        {{$exclude}}
-        <input type="checkbox" name="exclude[]" value="green" checked=""/> Green
-        <input type="checkbox" name="exclude[]" value="green" checked="{{{array_search('green', $exclude) ? true : false }}}"/> Green
-      </label>
-      <label>
-        <input type="checkbox" name="exclude[]" value="red" checked="{{{array_search('green', $exclude) ? true : false }}}" /> Red
-      </label>
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-  </form> --}}
   {!! Form::open(['url'=>route('cards.index'), 'method'=>'get', 'class'=>'form-inline']) !!}
     <div class="form-group">
       {!! Form::text('search', isset($search) ? $search : '', ['class'=>'form-control']) !!}
@@ -49,6 +33,16 @@
             @endif
           </a>
         </th>
+        @if($isAdmin)
+          <th>
+            <a href="{{route('cards.index', $params(['sort'=>'created_at', 'dir'=>!$dir]))}}">
+              Created At
+              @if($sort == 'created_at')
+                <span class="glyphicon glyphicon-arrow-{{$dir ? 'up' : 'down'}}"></span>
+              @endif
+            </a>
+          </th>
+        @endif
         <th>
           <a href="{{route('cards.index', $params(['sort'=>'color', 'dir'=>!$dir]))}}">
             Color
@@ -67,9 +61,23 @@
             <td>
               {{$card->description}}
             </td>
+            @if($isAdmin)
+              <td>
+                {{$card->created_at->toDateString()}}
+              </td>
+            @endif
             <td>
               {{$card->type->type}}
             </td>
+            @if($isAdmin)
+              <td>
+                {!! Form::open(['url'=>"/cards/$card->id", 'method'=>'POST']) !!}
+                  {{method_field('DELETE')}}
+
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                {!! Form::close() !!}
+              </td>
+            @endif
           </tr>
         @endforeach
       </tbody>

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Auth;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -44,6 +44,7 @@ class CardsController extends Controller
         'exclude'=>$exclude,
         'sort'=>$sortParam,
         'dir'=>$dir,
+        'isAdmin'=>Auth::check(),
         'params'=> function($params = []) use ($search, $exclude, $sortParam, $dir,$cards){
           $current = ['search'=> $search, 'exclude'=>$exclude, 'sort'=>$sortParam, 'dir'=>$dir, 'page'=>$cards->currentPage()];
           foreach ($params as $key => $value) {
@@ -115,8 +116,10 @@ class CardsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(\App\Card $card)
     {
-        //
+        $card->delete();
+        return redirect('/cards');
+        // return $card->word;
     }
 }

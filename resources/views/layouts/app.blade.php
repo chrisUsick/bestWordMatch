@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{$title}} - Best Word Match</title>
+    <title>{{isset($title) ? $title : ''}} - Best Word Match</title>
 
     <!-- CSS And JavaScript -->
     <meta charset="utf-8">
@@ -68,6 +68,12 @@
                           </li>
                         </ul>
                       </li>
+                  </ul>
+                  <ul class="nav navbar-nav navbar-right">
+                    <li>
+                      <!-- <a href="#">{{isset($user) ? $user->name : ''}}</a> -->
+                      <a href="#">{{Auth::user() ? Auth::user()->name : ''}}</a>
+                    </li>
                   </ul>
               </div>
               <!-- /.navbar-collapse -->

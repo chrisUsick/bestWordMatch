@@ -1,5 +1,5 @@
 <?php
-
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 class CardsTableSeeder extends Seeder
 {
@@ -25,7 +25,8 @@ class CardsTableSeeder extends Seeder
           DB::table('cards')->insert([
             'word'=>$word,
             'description'=>$description,
-            'card_type_id'=>$id
+            'card_type_id'=>$id,
+            'created_at'=>Carbon::now()
           ]);
         }
       }
