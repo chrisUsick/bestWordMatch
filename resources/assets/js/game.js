@@ -3,12 +3,18 @@ import {request} from "./request"
 export class Game {
   constructor () {
     this.model = {
-      showWaitingMsg: () => !this.model.gameStarted || this.model.registrationError,
+      showWaitingMsg: () => !this.model.gameStarted && !this.model.registrationError,
       playCard: this.playCard.bind(this),
       pickWinningCard: this.pickWinningCard.bind(this),
       hasPlayed: false
     };
-    this.gameId = location.pathname.match(/\d+/)[0];
+    const urlId = location.pathname.match(/\d+/);
+    // set game id
+    if (urlId) {
+      this.gameId = urlId[0]
+    } else if (localStorage.getItem('gameId')) {
+      this.gameId = localStorage.getItem('gameId');
+    }
     this.playerId = localStorage.getItem('ticket');
     this.model.playerId = this.playerId;
     this.messageHandler = this.getMessageHandler();
@@ -76,6 +82,9 @@ export class Game {
     return {
       'game:myHand':(data) => {
         this.model.myHand = data.cards;
+        if (!this.model.registered) {
+          localStorage.setItem('gameId', this.gameId);
+        }
         this.model.registered = true;
       }
       , 'game:registrationError': (data) => this.model.registrationError = data.error
@@ -97,7 +106,10 @@ export class Game {
       , 'game:cardPlayed': (data) => {
         this.setPlayers(data);
       }
-      , 'game:unknownError': (data) => console.log("unknown error: ", data.message)
+      , 'game:unknownError': (data) =>  {
+        this.model.registrationError = !this.model.registered ? 'Failed To register' : '';
+        console.log("unknown error: ", data.message)
+      }
     }
   }
 

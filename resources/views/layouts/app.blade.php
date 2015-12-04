@@ -45,7 +45,28 @@
               <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                   <ul class="nav navbar-nav">
                       <li>
-                          <a href="#">About</a>
+                          <a href="{{route('lobby')}}" class="{{Request::is('lobby') ? 'active' : ''}}">Lobby</a>
+                      </li>
+                      <li>
+                        <a href="{{route('game.show', 'myGame')}}" class="{{Request::is('game.show') ? 'active' : ''}}">My Game</a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="{{route('cards.index')}}" data-toggle="dropdown" role="button"
+                           class="dropdown-toggle {{Request::is('cards.index') ? 'active' : ''}}">
+                          Cards <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <a href="{{route('cards.index',  ['exclude'=>['red']])}}">Green Cards</a>
+                          </li>
+                          <li>
+                            <a href="{{route('cards.index',  ['exclude'=>['green']])}}">Red Cards</a>
+                          </li>
+                          <li role="separator" class="divider"></li>
+                          <li>
+                            <a href="{{route('cards.index')}}">All cards</a>
+                          </li>
+                        </ul>
                       </li>
                   </ul>
               </div>

@@ -18,17 +18,40 @@ class CardsController extends Controller
     {
       $search = $request->input('search');
 
-      $exclude = $request->input('exclude') || [];
-      $cards = \App\Card::where('word', 'LIKE', "%$search%")
-        ->orWhere('description', 'LIKE', "%$search%")
-        // ->andWhereHas('type', function($q) use ($exclude) {
-        //   if (count($exclude)) {
-        //     $q->where('type', 'LIKE', $exclude[0]);
-        //   }
-        // })
+      $exclude = $request->input('exclude') ? $request->input('exclude') : [];
+      $dir = $request->input('dir');
+      $sortParam = $request->input('sort');
+      $orderBy =  $sortParam && ($sortParam != 'color') ? $sortParam : 'card_type_id';
+
+      // $exclude =  [];
+      $cards = \App\Card::whereHas('type', function($q) use ($exclude) {
+          foreach ($exclude as $value) {
+            $q->where('type', 'NOT LIKE', "%$value%");
+          }
+        })
+        ->where(function($q) use ($search) {
+          $q->orWhere('description', 'LIKE', "%$search%")
+            ->orWhere('word', 'LIKE', "%$search%");
+        })
+        ->orderBy($orderBy, $dir ? 'asc' :'desc')
+        ->orderBy('word', 'asc')
         ->paginate(20);
 
-      return view('cards.index', ['cards'=>$cards, 'title'=>'Cards', 'search'=>$search, 'exclude'=>$exclude]);
+      return view('cards.index', [
+        'cards'=>$cards,
+        'title'=>'Cards',
+        'search'=>$search,
+        'exclude'=>$exclude,
+        'sort'=>$sortParam,
+        'dir'=>$dir,
+        'params'=> function($params = []) use ($search, $exclude, $sortParam, $dir,$cards){
+          $current = ['search'=> $search, 'exclude'=>$exclude, 'sort'=>$sortParam, 'dir'=>$dir, 'page'=>$cards->currentPage()];
+          foreach ($params as $key => $value) {
+            $current[$key] = $value;
+          }
+          return $current;
+        }
+      ]);
     }
 
     /**

@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/', 'LobbyController@lobby');
+Route::get('/', 'LobbyController@lobby')->name('lobby');
 // Route::get('/game/{id}', 'GameController@show');
 Route::resource('game', 'GameController', ['only'=> ['show']]);
 
